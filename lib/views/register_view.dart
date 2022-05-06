@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../helpers/toast_alert.dart';
+import '../services/auth_service.dart';
 import '../widgets/button_widget.dart';
 import '../widgets/custom_input_widget.dart';
 import '../widgets/label_widget.dart';
@@ -59,6 +62,8 @@ class __FormLoginWidgetState extends State<_FormLoginWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
     return Container(
       margin: const EdgeInsets.only(top: 40),
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -87,8 +92,16 @@ class __FormLoginWidgetState extends State<_FormLoginWidget> {
           ButtonWidget(
             color: Colors.green, 
             text: 'Registrar', 
-            onPreseed: () {
-              print('valores');
+            onPreseed: (authService.procesando) ? null : () async {
+              FocusScope.of(context).unfocus();
+              final isRegister = await authService.register(ctrNameInput.text.trim(), ctrEmailInput.text.trim(), ctrPasswordInput.text.trim());
+
+              if (isRegister) {
+                // TODO: Conectar al socket y loguear
+                Navigator.pushReplacementNamed(context, 'users');
+              } else {
+                mostrarAlerta(context, 'Registro Incorrecto', authService.sms);
+              }
             }
           )
         ],

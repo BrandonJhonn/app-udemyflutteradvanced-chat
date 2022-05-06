@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../helpers/toast_alert.dart';
+import '../services/auth_service.dart';
 import '../widgets/button_widget.dart';
 import '../widgets/custom_input_widget.dart';
 import '../widgets/label_widget.dart';
@@ -58,6 +61,8 @@ class __FormLoginWidgetState extends State<_FormLoginWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
     return Container(
       margin: const EdgeInsets.only(top: 40),
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -81,8 +86,16 @@ class __FormLoginWidgetState extends State<_FormLoginWidget> {
           ButtonWidget(
             color: Colors.green, 
             text: 'Ingresar', 
-            onPreseed: () {
-              print('valores');
+            onPreseed: (authService.procesando) ? null : () async {
+              FocusScope.of(context).unfocus();
+              final isLogin = await authService.login(ctrEmailInput.text.trim(), ctrPasswordInput.text.trim());
+
+              if (isLogin) {
+                //  TODO: Conectar al socket
+                Navigator.pushReplacementNamed(context, 'users');
+              } else {
+                mostrarAlerta(context, 'Login Incorrecto', authService.sms);
+              }
             }
           )
         ],

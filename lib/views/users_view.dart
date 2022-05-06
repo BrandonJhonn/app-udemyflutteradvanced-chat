@@ -1,4 +1,6 @@
+import 'package:app_workspace_chat/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../models/user_model.dart';
@@ -14,17 +16,20 @@ class UsersView extends StatefulWidget {
 class _UsersViewState extends State<UsersView> {
   final RefreshController ctrRefresh = RefreshController(initialRefresh: false);
   final users = [
-    User(uid: '1', name: 'Jose Madero', email: 'test1@test.com', onLine: true),
-    User(uid: '2', name: 'Maria Fernanda', email: 'test2@test.com', onLine: false),
-    User(uid: '3', name: 'Samuel Romero', email: 'test3@test.com', onLine: true),
+    UserModel(uid: '1', nombre: 'Jose Madero', email: 'test1@test.com', online: true),
+    UserModel(uid: '2', nombre: 'Maria Fernanda', email: 'test2@test.com', online: false),
+    UserModel(uid: '3', nombre: 'Samuel Romero', email: 'test3@test.com', online: true),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    final usuario = authService.usuario;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mi nombre',
-        style: TextStyle(
+        title: Text(usuario.nombre,
+        style: const TextStyle(
             color: Colors.black87,
           ),
         ),
@@ -32,7 +37,11 @@ class _UsersViewState extends State<UsersView> {
         backgroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.exit_to_app, color: Colors.black87),
-          onPressed: () {}, 
+          onPressed: () {
+            //  TODO: Desconectar del socket
+            AuthService.deleteToken();
+            Navigator.pushReplacementNamed(context, 'login');
+          }, 
         ),
         actions: [
           Container(
@@ -64,19 +73,19 @@ class _UsersViewState extends State<UsersView> {
     );
   }
 
-  ListTile _userListTile(User user) {
+  ListTile _userListTile(UserModel user) {
     return ListTile(
-        title: Text(user.name),
+        title: Text(user.nombre),
         subtitle: Text(user.email),
         leading: CircleAvatar(
-          child: Text(user.name.substring(0, 2)),
+          child: Text(user.nombre.substring(0, 2)),
           backgroundColor: Colors.blue[100],
         ),
         trailing: Container(
           width: 10,
           height: 10,
           decoration: BoxDecoration(
-            color: user.onLine
+            color: user.online
             ? Colors.green[300]
             : Colors.red,
             borderRadius: BorderRadius.circular(100),
