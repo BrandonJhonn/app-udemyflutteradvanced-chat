@@ -1,3 +1,4 @@
+import 'package:app_workspace_chat/services/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -62,6 +63,7 @@ class __FormLoginWidgetState extends State<_FormLoginWidget> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
 
     return Container(
       margin: const EdgeInsets.only(top: 40),
@@ -91,7 +93,7 @@ class __FormLoginWidgetState extends State<_FormLoginWidget> {
               final isLogin = await authService.login(ctrEmailInput.text.trim(), ctrPasswordInput.text.trim());
 
               if (isLogin) {
-                //  TODO: Conectar al socket
+                socketService.connect();
                 Navigator.pushReplacementNamed(context, 'users');
               } else {
                 mostrarAlerta(context, 'Login Incorrecto', authService.sms);
